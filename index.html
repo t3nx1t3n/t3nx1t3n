@@ -6,7 +6,6 @@
   <title>Tenaiten Checker</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Стили 1-в-1 из твоей программы, но с поддержкой тем Telegram */
     :root {
       --bg: var(--tg-theme-bg-color, #0d1117);
       --bg-alt: var(--tg-theme-secondary-bg-color, #161b22);
@@ -28,7 +27,6 @@
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
-      overflow-x: hidden;
     }
 
     .app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -63,6 +61,8 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 16px;
+      overflow-y: auto;
+      max-height: 85vh;
     }
 
     .panel h2 {
@@ -109,6 +109,7 @@
     }
     .btn.primary { background: #238636; border-color: #2ea043; }
     .btn.danger { background: #da3633; border-color: #f85149; }
+    .btn.active { background: var(--bg-alt); color: var(--accent); border-color: var(--accent); }
 
     .progress-wrap { margin-top: 12px; }
     .progress-bar {
@@ -153,9 +154,10 @@
       color: var(--text-dim);
       font-size: 13px;
       cursor: pointer;
+      border-bottom: 2px solid transparent;
       white-space: nowrap;
     }
-    .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     .tab-content { display: none; padding: 16px; }
     .tab-content.active { display: block; }
@@ -174,6 +176,35 @@
     .results-list li .team {
       color: var(--green);
       font-family: monospace;
+    }
+
+    .queue-item {
+      background: var(--bg-input);
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .queue-top { display: flex; gap: 8px; margin-bottom: 4px; }
+    .queue-top input { margin-top: 0; padding: 6px 8px; }
+    .queue-top .btn.small.danger { padding: 0 12px; font-size: 18px; }
+    .queue-info { font-size: 11px; color: var(--text-dim); margin-left: 2px; }
+
+    .tab-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .tab-selector select {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      outline: none;
     }
   </style>
 </head>
@@ -208,9 +239,19 @@
             <div><span class="label">Вариант:</span> <span id="curr1">—</span></div>
             <div><span class="label">Прогресс:</span> <span id="prog1">— / —</span></div>
           </div>
+
+          <hr /><h2>Доп. ники</h2>
+          <div id="queue1" class="queue-container"></div>
+          <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueueItem(1)">+ Добавить ник</button>
+
+          <hr /><h2>Настройки</h2>
+          <label>Сервер <input id="host1" type="text" value="mc.masedworld.net" /></label>
+          <label>Версия <input id="version1" type="text" value="1.20.1" /></label>
+          <label>Пароль <input id="password1" type="text" placeholder="Пусто = 123123" /></label>
+          <label>Команда после входа <input id="postCommand1" type="text" placeholder="/sw" /></label>
         </div>
 
-        <!-- Профиль 2 (скрыт по умолчанию) -->
+        <!-- Профиль 2 -->
         <div id="profile2" style="display: none;">
           <label>Проверяемый ник
             <input id="nick2" type="text" placeholder="Например: Notch" />
@@ -227,6 +268,16 @@
             <div><span class="label">Вариант:</span> <span id="curr2">—</span></div>
             <div><span class="label">Прогресс:</span> <span id="prog2">— / —</span></div>
           </div>
+
+          <hr /><h2>Доп. ники</h2>
+          <div id="queue2" class="queue-container"></div>
+          <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueueItem(2)">+ Добавить ник</button>
+
+          <hr /><h2>Настройки</h2>
+          <label>Сервер <input id="host2" type="text" value="mc.masedworld.net" /></label>
+          <label>Версия <input id="version2" type="text" value="1.20.1" /></label>
+          <label>Пароль <input id="password2" type="text" placeholder="Пусто = 123123" /></label>
+          <label>Команда после входа <input id="postCommand2" type="text" placeholder="/sw" /></label>
         </div>
       </aside>
 
@@ -236,12 +287,23 @@
           <button class="tab active" onclick="switchSubTab('results')">📊 Результаты</button>
           <button class="tab" onclick="switchSubTab('high')">⬆️ Топ высоких</button>
           <button class="tab" onclick="switchSubTab('low')">⬇️ Топ низких</button>
+          <button class="tab" onclick="switchSubTab('log')">📜 Лог</button>
         </div>
 
-        <div id="tab-results" class="tab-content active" style="max-height: 400px; overflow-y: auto;">
-          <div id="resultsList" class="results-list">
-             <div style="color: #8b949e; text-align: center; padding: 20px;">Данные загружаются с ПК...</div>
+        <div id="tab-results" class="tab-content active">
+          <div class="tab-selector">
+            <label>Просмотр:</label>
+            <select id="viewProfileResults" onchange="updateResultsView()">
+              <option value="1">Профиль 1</option>
+              <option value="2">Профиль 2</option>
+            </select>
           </div>
+          <div class="empty" id="resultsEmpty">Нет результатов.</div>
+          <ul class="results-list" id="resultsList"></ul>
+        </div>
+
+        <div id="tab-log" class="tab-content">
+          <pre id="log" style="font-family: monospace; font-size: 12px; white-space: pre-wrap;"></pre>
         </div>
       </main>
     </div>
@@ -254,13 +316,14 @@
     tg.setBackgroundColor('secondary_bg_color');
 
     let currentProfile = 1;
+    let currentViewProfile = '1';
 
     function switchTab(pid) {
       currentProfile = pid;
       document.getElementById('profile1').style.display = pid === 1 ? 'block' : 'none';
       document.getElementById('profile2').style.display = pid === 2 ? 'block' : 'none';
-      document.getElementById('btnTab1').classList.toggle('primary', pid === 1);
-      document.getElementById('btnTab2').classList.toggle('primary', pid === 2);
+      document.getElementById('btnTab1').classList.toggle('active', pid === 1);
+      document.getElementById('btnTab2').classList.toggle('active', pid === 2);
     }
 
     function switchSubTab(tabId) {
@@ -268,17 +331,41 @@
       event.target.classList.add('active');
       
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      if (tabId === 'results') {
-        document.getElementById('tab-results').classList.add('active');
-      } else {
-        // Заглушки для топов, если нужно
-        alert("Топы доступны в боте по команде /top +");
-      }
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function addQueueItem(pid) {
+      const container = document.getElementById(`queue${pid}`);
+      const item = document.createElement('div');
+      item.className = 'queue-item';
+      
+      const topRow = document.createElement('div');
+      topRow.className = 'queue-top';
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Доп. ник';
+      
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn small danger';
+      delBtn.textContent = '−';
+      delBtn.onclick = () => item.remove();
+      
+      topRow.appendChild(input);
+      topRow.appendChild(delBtn);
+      item.appendChild(topRow);
+      container.appendChild(item);
     }
 
     // Отправка команды в бота
     function sendAction(action, profileId, nick) {
-      const data = { action, profileId, nick };
+      // Собираем настройки профиля
+      const host = document.getElementById(`host${profileId}`).value.trim();
+      const version = document.getElementById(`version${profileId}`).value.trim();
+      const password = document.getElementById(`password${profileId}`).value;
+      const postCommand = document.getElementById(`postCommand${profileId}`).value.trim();
+      
+      const data = { action, profileId, nick, host, version, password, postCommand };
       tg.sendData(JSON.stringify(data));
       tg.close();
     }
@@ -294,6 +381,13 @@
 
     function stopProfile(id) {
       sendAction('stop', id);
+    }
+
+    function updateResultsView() {
+      currentViewProfile = document.getElementById('viewProfileResults').value;
+      // В реальном времени обновлять результаты из программы без веб-сервера нельзя,
+      // поэтому мы просто показываем заглушку или оставляем пустым.
+      // Бот может прислать данные при открытии, но для этого нужен полноценный бэкенд.
     }
   </script>
 </body>
