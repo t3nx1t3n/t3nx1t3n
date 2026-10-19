@@ -1,223 +1,290 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tenaiten Mini App</title>
+  <title>Tenaiten Checker</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Поддержка тем Telegram */
+    /* Стили 1-в-1 из твоей программы, но с поддержкой тем Telegram */
     :root {
       --bg: var(--tg-theme-bg-color, #0d1117);
+      --bg-alt: var(--tg-theme-secondary-bg-color, #161b22);
+      --bg-input: #21262d;
+      --border: #30363d;
       --text: var(--tg-theme-text-color, #e6edf3);
-      --hint: var(--tg-theme-hint-color, #8b949e);
-      --btn: var(--tg-theme-button-color, #238636);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-      --card: var(--tg-theme-secondary-bg-color, #161b22);
-      --border: rgba(255,255,255,0.1);
-      --danger: #da3633;
+      --text-dim: var(--tg-theme-hint-color, #8b949e);
+      --accent: #58a6ff;
       --green: #3fb950;
+      --red: #f85149;
       --yellow: #d29922;
     }
 
     * { box-sizing: border-box; }
 
     body {
+      margin: 0;
       font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      font-size: 14px;
+      overflow-x: hidden;
     }
 
-    .container {
-      width: 100%;
-      max-width: 800px; /* Ограничение для ПК */
-      display: grid;
-      grid-template-columns: 1fr;
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
       gap: 16px;
-    }
-
-    /* На ПК делаем 2 колонки */
-    @media (min-width: 768px) {
-      .container {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    h1 {
-      font-size: 20px;
-      margin: 0 0 16px 0;
-      text-align: center;
-      color: var(--text);
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
       padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      flex: 1;
     }
 
-    .card h2 {
-      font-size: 16px;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--hint);
+    @media (min-width: 768px) {
+      .layout { flex-direction: row; }
+      .panel { flex: 1; }
+      .panel.settings { max-width: 400px; }
     }
 
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg);
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      background: rgba(139, 148, 158, 0.2);
-      color: var(--hint);
-    }
-    .status-badge.running {
-      background: rgba(63, 185, 80, 0.2);
-      color: var(--green);
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--hint);
-    }
-    .info-row span:last-child {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      background: var(--bg);
+    .panel {
+      background: var(--bg-alt);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
       font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--text-dim);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    input {
+      width: 100%;
+      margin-top: 4px;
+      padding: 8px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
       outline: none;
     }
-    input[type="text"]:focus {
-      border-color: var(--btn);
-    }
 
-    .btn-row {
-      display: flex;
-      gap: 10px;
-    }
+    hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 
-    button {
+    .row { display: flex; gap: 8px; margin: 14px 0; }
+
+    .btn {
       flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: bold;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-input);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      color: var(--btn-text);
-      background: var(--btn);
-      transition: opacity 0.2s;
     }
-    button:active { opacity: 0.8; }
-    button.stop { background: var(--danger); }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn.primary { background: #238636; border-color: #2ea043; }
+    .btn.danger { background: #da3633; border-color: #f85149; }
 
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: var(--hint);
+    .progress-wrap { margin-top: 12px; }
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #238636, #3fb950);
+    }
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .current {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .current .label { color: var(--text-dim); margin-right: 8px; }
+
+    /* Вкладки */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-alt);
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 12px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+    .tab-content { display: none; padding: 16px; }
+    .tab-content.active { display: block; }
+
+    .results-list { list-style: none; margin: 0; padding: 0; }
+    .results-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      border-left: 3px solid var(--green);
+    }
+    .results-list li .team {
+      color: var(--green);
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <h1>⛏️ Tenaiten Checker</h1>
+  <div class="app">
+    <header>
+      <h1>⛏️ Tenaiten Checker</h1>
+    </header>
 
-  <div class="container" id="container">
-    <div class="loading">Загрузка данных...</div>
+    <div class="layout">
+      <!-- ЛЕВАЯ ПАНЕЛЬ (УПРАВЛЕНИЕ) -->
+      <aside class="panel settings">
+        <div class="row" style="margin-top: 0; margin-bottom: 16px;">
+          <button class="btn active" id="btnTab1" onclick="switchTab(1)">Профиль 1</button>
+          <button class="btn" id="btnTab2" onclick="switchTab(2)">Профиль 2</button>
+        </div>
+
+        <!-- Профиль 1 -->
+        <div id="profile1">
+          <label>Проверяемый ник
+            <input id="nick1" type="text" placeholder="Например: Notch" />
+          </label>
+          <div class="row">
+            <button class="btn primary" onclick="startProfile(1)">▶ Старт</button>
+            <button class="btn danger" onclick="stopProfile(1)">■ Стоп</button>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div id="fill1"></div></div>
+            <div class="progress-text" id="text1">0 / 0</div>
+          </div>
+          <div class="current">
+            <div><span class="label">Вариант:</span> <span id="curr1">—</span></div>
+            <div><span class="label">Прогресс:</span> <span id="prog1">— / —</span></div>
+          </div>
+        </div>
+
+        <!-- Профиль 2 (скрыт по умолчанию) -->
+        <div id="profile2" style="display: none;">
+          <label>Проверяемый ник
+            <input id="nick2" type="text" placeholder="Например: Notch" />
+          </label>
+          <div class="row">
+            <button class="btn primary" onclick="startProfile(2)">▶ Старт</button>
+            <button class="btn danger" onclick="stopProfile(2)">■ Стоп</button>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div id="fill2"></div></div>
+            <div class="progress-text" id="text2">0 / 0</div>
+          </div>
+          <div class="current">
+            <div><span class="label">Вариант:</span> <span id="curr2">—</span></div>
+            <div><span class="label">Прогресс:</span> <span id="prog2">— / —</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ПРАВАЯ ПАНЕЛЬ (РЕЗУЛЬТАТЫ) -->
+      <main class="panel results" style="padding: 0; overflow: hidden;">
+        <div class="tabs">
+          <button class="tab active" onclick="switchSubTab('results')">📊 Результаты</button>
+          <button class="tab" onclick="switchSubTab('high')">⬆️ Топ высоких</button>
+          <button class="tab" onclick="switchSubTab('low')">⬇️ Топ низких</button>
+        </div>
+
+        <div id="tab-results" class="tab-content active" style="max-height: 400px; overflow-y: auto;">
+          <div id="resultsList" class="results-list">
+             <div style="color: #8b949e; text-align: center; padding: 20px;">Данные загружаются с ПК...</div>
+          </div>
+        </div>
+      </main>
+    </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Разворачиваем на весь экран
-    tg.setHeaderColor('secondary_bg_color'); // Красим шапку
+    tg.expand();
+    tg.setHeaderColor('secondary_bg_color');
+    tg.setBackgroundColor('secondary_bg_color');
 
-    const container = document.getElementById('container');
+    let currentProfile = 1;
 
-    // Рендер одного профиля
-    function renderProfile(profileId, status) {
-      const isRunning = status.running;
-      const nick = status.targetNick || '—';
-      const current = status.currentIndex + 1;
-      const total = status.total || 0;
-      const pct = total ? Math.round((current / total) * 100) : 0;
-
-      return `
-        <div class="card">
-          <h2>Профиль ${profileId}</h2>
-          
-          <div class="status-row">
-            <span>Статус</span>
-            <span class="status-badge ${isRunning ? 'running' : ''}">
-              ${isRunning ? 'В работе' : 'Остановлен'}
-            </span>
-          </div>
-
-          <div class="info-row">
-            <span>Текущий ник</span>
-            <span>${nick}</span>
-          </div>
-          <div class="info-row">
-            <span>Прогресс</span>
-            <span>${current} / ${total}</span>
-          </div>
-
-          <input type="text" id="nick-${profileId}" placeholder="Введите ник для проверки" value="${nick !== '—' ? nick : ''}">
-
-          <div class="btn-row">
-            <button onclick="startProfile(${profileId})" ${isRunning ? 'disabled' : ''}>▶ Старт</button>
-            <button class="stop" onclick="stopProfile(${profileId})" ${!isRunning ? 'disabled' : ''}>■ Стоп</button>
-          </div>
-        </div>
-      `;
+    function switchTab(pid) {
+      currentProfile = pid;
+      document.getElementById('profile1').style.display = pid === 1 ? 'block' : 'none';
+      document.getElementById('profile2').style.display = pid === 2 ? 'block' : 'none';
+      document.getElementById('btnTab1').classList.toggle('primary', pid === 1);
+      document.getElementById('btnTab2').classList.toggle('primary', pid === 2);
     }
 
-    // Обновление интерфейса
-    function updateUI(data) {
-      container.innerHTML = 
-        renderProfile(1, data[1] || { running: false }) + 
-        renderProfile(2, data[2] || { running: false });
+    function switchSubTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      if (tabId === 'results') {
+        document.getElementById('tab-results').classList.add('active');
+      } else {
+        // Заглушки для топов, если нужно
+        alert("Топы доступны в боте по команде /top +");
+      }
     }
 
-    // Отправка действий боту
+    // Отправка команды в бота
     function sendAction(action, profileId, nick) {
       const data = { action, profileId, nick };
       tg.sendData(JSON.stringify(data));
-      tg.close(); // Закрываем WebApp после отправки
+      tg.close();
     }
 
     function startProfile(id) {
-      const nick = document.getElementById(`nick-${id}`).value.trim();
+      const nick = document.getElementById(`nick${id}`).value.trim();
       if (!nick) {
         tg.showAlert("Введите ник!");
         return;
@@ -228,16 +295,6 @@
     function stopProfile(id) {
       sendAction('stop', id);
     }
-
-    // (Опционально) Можно запросить статус при загрузке, если у тебя есть API
-    // Пока просто заглушка
-    const initialData = {
-      1: { running: false, targetNick: null, currentIndex: 0, total: 0 },
-      2: { running: false, targetNick: null, currentIndex: 0, total: 0 }
-    };
-    updateUI(initialData);
-
-    // Если бот пришлёт данные, можно обновить через tg.onEvent('themeChanged', ...)
   </script>
 </body>
 </html>
