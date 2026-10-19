@@ -27,6 +27,7 @@
       background: var(--bg);
       color: var(--text);
       font-size: 14px;
+      -webkit-text-size-adjust: 100%;
     }
 
     .app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -42,6 +43,7 @@
 
     header h1 { margin: 0; font-size: 18px; font-weight: 600; }
 
+    /* АДАПТИВНЫЙ LAYOUT */
     .layout {
       display: flex;
       flex-direction: column;
@@ -50,8 +52,15 @@
       flex: 1;
     }
 
+    /* На ПК: 2 колонки */
     @media (min-width: 768px) {
-      .layout { flex-direction: row; align-items: flex-start; }
+      .layout { 
+        flex-direction: row; 
+        align-items: flex-start; 
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
       .panel.settings { width: 380px; flex-shrink: 0; }
       .panel.results { flex: 1; }
     }
@@ -72,12 +81,12 @@
     input {
       width: 100%;
       margin-top: 4px;
-      padding: 8px 10px;
+      padding: 10px; /* Чуть больше для телефона */
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 6px;
       color: var(--text);
-      font-size: 13px;
+      font-size: 14px;
       outline: none;
     }
 
@@ -87,19 +96,20 @@
 
     .btn {
       flex: 1;
-      padding: 10px;
+      padding: 12px; /* Крупные кнопки для пальцев */
       border: 1px solid var(--border);
       border-radius: 6px;
       background: var(--bg-input);
       color: var(--text);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn.primary { background: #238636; border-color: #2ea043; }
     .btn.danger { background: #da3633; border-color: #f85149; }
-    .btn.small { flex: none; padding: 5px 12px; font-size: 12px; }
+    .btn.small { flex: none; padding: 8px 12px; font-size: 12px; }
 
     .progress-wrap { margin-top: 12px; }
     .progress-bar { height: 8px; background: var(--bg-input); border-radius: 4px; overflow: hidden; }
@@ -108,10 +118,10 @@
 
     .current {
       margin-top: 10px;
-      padding: 8px 12px;
+      padding: 10px 12px;
       background: var(--bg-input);
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.8;
     }
     .current .label { color: var(--text-dim); margin-right: 8px; }
@@ -121,13 +131,12 @@
     .variants-info {
       margin-top: -4px;
       margin-bottom: 12px;
-      padding: 6px 10px;
+      padding: 8px 10px;
       background: var(--bg-input);
       border: 1px dashed var(--border);
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-dim);
-      transition: all .15s;
     }
     .variants-info.has-value {
       color: var(--accent);
@@ -147,12 +156,12 @@
 
     .profile-tab {
       flex: 1;
-      padding: 8px;
+      padding: 10px;
       background: transparent;
       border: none;
       border-radius: 6px;
       color: var(--text-dim);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -164,11 +173,11 @@
 
     /* ОЧЕРЕДЬ */
     .queue-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-    .queue-item { background: var(--bg-input); padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+    .queue-item { background: var(--bg-input); padding: 10px; border-radius: 6px; border: 1px solid var(--border); }
     .queue-top { display: flex; gap: 8px; margin-bottom: 4px; }
-    .queue-top input { margin-top: 0; padding: 6px 8px; }
-    .queue-top .btn.small.danger { padding: 0 12px; font-size: 18px; }
-    .queue-info { font-size: 11px; color: var(--text-dim); margin-left: 2px; }
+    .queue-top input { margin-top: 0; padding: 8px; }
+    .queue-top .btn.small.danger { padding: 0 12px; font-size: 20px; }
+    .queue-info { font-size: 12px; color: var(--text-dim); margin-left: 2px; }
 
     /* ВКЛАДКИ РЕЗУЛЬТАТОВ */
     .results { display: flex; flex-direction: column; padding: 0; }
@@ -179,14 +188,15 @@
       overflow-x: auto;
     }
     .tab {
-      padding: 12px 18px;
+      padding: 14px 18px; /* Удобно нажимать на телефоне */
       background: transparent;
       border: none;
       color: var(--text-dim);
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       border-bottom: 2px solid transparent;
       white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
     }
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
@@ -198,11 +208,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
+      padding: 12px 14px;
       background: var(--bg-input);
       border-radius: 6px;
       margin-bottom: 6px;
-      font-size: 13px;
+      font-size: 14px;
       border-left: 3px solid var(--green);
     }
     .results-list li .nick { font-weight: 600; }
@@ -214,7 +224,7 @@
       border-radius: 4px;
     }
     .results-list li .found {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-dim);
     }
 
@@ -222,7 +232,7 @@
       color: var(--text-dim);
       text-align: center;
       padding: 20px;
-      font-size: 13px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -398,7 +408,6 @@
       container.appendChild(item);
     }
 
-    // Подсчет вариантов для главного ника
     document.getElementById('nick1').addEventListener('input', (e) => {
       const val = e.target.value.trim();
       const info = document.getElementById('variants1');
@@ -503,7 +512,6 @@
       }[c]));
     }
 
-    // Запрос данных при открытии
     setTimeout(() => {
       tg.sendData(JSON.stringify({ action: 'request_data', type: 'all' }));
     }, 500);
