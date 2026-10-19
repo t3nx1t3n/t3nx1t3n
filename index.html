@@ -127,6 +127,7 @@
       border-radius: 6px;
       font-size: 12px;
       color: var(--text-dim);
+      transition: all .15s;
     }
     .variants-info.has-value {
       color: var(--accent);
@@ -343,7 +344,7 @@
     tg.setBackgroundColor('secondary_bg_color');
 
     let currentProfile = 1;
-    let allData = { high: [], low: [], all: [] }; // Сюда будем сохранять присланные данные
+    let allData = { high: [], low: [], all: [] };
 
     function switchProfile(pid) {
       currentProfile = pid;
@@ -359,7 +360,6 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       
-      // При переключении отправляем запрос на обновление данных
       tg.sendData(JSON.stringify({ action: 'request_data', type: tabName }));
     }
 
@@ -375,6 +375,16 @@
       input.type = 'text';
       input.placeholder = 'Доп. ник';
       
+      const info = document.createElement('div');
+      info.className = 'queue-info';
+      info.textContent = 'Вариантов: —';
+      
+      input.addEventListener('input', () => {
+        const val = input.value.trim();
+        if (!val) { info.textContent = 'Вариантов: —'; return; }
+        info.textContent = `Вариантов: ${Math.pow(2, Math.min(val.length, 16))}`;
+      });
+      
       const delBtn = document.createElement('button');
       delBtn.className = 'btn small danger';
       delBtn.textContent = '−';
@@ -382,10 +392,13 @@
       
       topRow.appendChild(input);
       topRow.appendChild(delBtn);
+      
       item.appendChild(topRow);
+      item.appendChild(info);
       container.appendChild(item);
     }
 
+    // Подсчет вариантов для главного ника
     document.getElementById('nick1').addEventListener('input', (e) => {
       const val = e.target.value.trim();
       const info = document.getElementById('variants1');
@@ -402,7 +415,6 @@
       info.className = 'variants-info has-value';
     });
 
-    // Отправка команд
     function sendAction(action, profileId, nick) {
       const host = document.getElementById('host' + profileId).value.trim();
       const version = document.getElementById('version' + profileId).value.trim();
@@ -427,10 +439,6 @@
       sendAction('stop', id);
     }
 
-    // Приём данных от бота (бот пришлёт их через событие)
-    tg.onEvent('viewportChanged', () => {});
-    
-    // Обработка входящего сообщения (бот пришлёт данные)
     tg.onEvent('dataReceived', (data) => {
       try {
         const parsed = JSON.parse(data);
@@ -443,7 +451,6 @@
     function renderTops(high, low, all) {
       allData = { high, low, all };
       
-      // Топ высоких
       const listHigh = document.getElementById('listHigh');
       const emptyHigh = document.getElementById('emptyHigh');
       if (high && high.length) {
@@ -459,7 +466,6 @@
         listHigh.innerHTML = '';
       }
 
-      // Топ низких
       const listLow = document.getElementById('listLow');
       const emptyLow = document.getElementById('emptyLow');
       if (low && low.length) {
@@ -475,7 +481,6 @@
         listLow.innerHTML = '';
       }
 
-      // Все проверенные
       const listAll = document.getElementById('listAll');
       const emptyAll = document.getElementById('emptyAll');
       if (all && all.length) {
