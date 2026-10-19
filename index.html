@@ -16,6 +16,7 @@
       --accent: #58a6ff;
       --green: #3fb950;
       --red: #f85149;
+      --yellow: #d29922;
     }
 
     * { box-sizing: border-box; }
@@ -28,19 +29,31 @@
       font-size: 14px;
     }
 
-    .app {
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
       display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 16px;
-      max-width: 600px;
-      margin: 0 auto;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
     }
 
-    h1 {
-      text-align: center;
-      font-size: 20px;
-      margin-bottom: 16px;
+    header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      flex: 1;
+    }
+
+    @media (min-width: 768px) {
+      .layout { flex-direction: row; align-items: flex-start; }
+      .panel.settings { width: 380px; flex-shrink: 0; }
+      .panel.results { flex: 1; }
     }
 
     .panel {
@@ -48,14 +61,29 @@
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 16px;
-      margin-bottom: 16px;
+      overflow: hidden;
     }
 
-    .row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+    .panel.settings { overflow-y: auto; max-height: 90vh; }
+    .panel h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); }
+
+    label { display: block; margin-bottom: 10px; font-size: 12px; color: var(--text-dim); }
+
+    input {
+      width: 100%;
+      margin-top: 4px;
+      padding: 8px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
     }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    .row { display: flex; gap: 8px; margin: 14px 0; }
 
     .btn {
       flex: 1;
@@ -64,62 +92,19 @@
       border-radius: 6px;
       background: var(--bg-input);
       color: var(--text);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
     }
     .btn.primary { background: #238636; border-color: #2ea043; }
     .btn.danger { background: #da3633; border-color: #f85149; }
-    .btn.active { background: var(--bg-alt); color: var(--accent); border-color: var(--accent); }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    input {
-      width: 100%;
-      margin-top: 4px;
-      padding: 10px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-    }
-
-    hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-
-    h2 {
-      font-size: 14px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin: 0 0 12px;
-      letter-spacing: 0.5px;
-    }
+    .btn.small { flex: none; padding: 5px 12px; font-size: 12px; }
 
     .progress-wrap { margin-top: 12px; }
-    .progress-bar {
-      height: 8px;
-      background: var(--bg-input);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-bar > div {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, #238636, #3fb950);
-    }
-    .progress-text {
-      font-size: 11px;
-      color: var(--text-dim);
-      text-align: right;
-      margin-top: 4px;
-    }
+    .progress-bar { height: 8px; background: var(--bg-input); border-radius: 4px; overflow: hidden; }
+    .progress-bar > div { height: 100%; width: 0; background: linear-gradient(90deg, #238636, #3fb950); }
+    .progress-text { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: 4px; }
 
     .current {
       margin-top: 10px;
@@ -130,91 +115,224 @@
       line-height: 1.8;
     }
     .current .label { color: var(--text-dim); margin-right: 8px; }
+    #currentNick1, #currentNick2 { font-weight: 600; color: var(--green); }
+    #progressLabel1, #progressLabel2 { font-weight: 600; color: var(--yellow); }
 
-    .queue-item {
+    .variants-info {
+      margin-top: -4px;
+      margin-bottom: 12px;
+      padding: 6px 10px;
       background: var(--bg-input);
-      padding: 8px;
+      border: 1px dashed var(--border);
       border-radius: 6px;
-      border: 1px solid var(--border);
-      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text-dim);
     }
-    .queue-top { display: flex; gap: 8px; }
-    .queue-top input { margin-top: 0; padding: 8px; }
+    .variants-info.has-value {
+      color: var(--accent);
+      border-color: var(--accent);
+      border-style: solid;
+      background: rgba(88,166,255,.08);
+    }
+
+    /* ПЕРЕКЛЮЧАТЕЛЬ ПРОФИЛЕЙ */
+    .profile-switcher {
+      display: flex;
+      background: var(--bg-input);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .profile-tab {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .profile-tab.active {
+      background: var(--bg-alt);
+      color: var(--accent);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* ОЧЕРЕДЬ */
+    .queue-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .queue-item { background: var(--bg-input); padding: 8px; border-radius: 6px; border: 1px solid var(--border); }
+    .queue-top { display: flex; gap: 8px; margin-bottom: 4px; }
+    .queue-top input { margin-top: 0; padding: 6px 8px; }
     .queue-top .btn.small.danger { padding: 0 12px; font-size: 18px; }
-    
-    .btn.small { padding: 5px 12px; font-size: 12px; }
+    .queue-info { font-size: 11px; color: var(--text-dim); margin-left: 2px; }
+
+    /* ВКЛАДКИ РЕЗУЛЬТАТОВ */
+    .results { display: flex; flex-direction: column; padding: 0; }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-alt);
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 12px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-content { display: none; padding: 16px; flex: 1; overflow-y: auto; }
+    .tab-content.active { display: block; }
+
+    .results-list { list-style: none; margin: 0; padding: 0; }
+    .results-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      border-left: 3px solid var(--green);
+    }
+    .results-list li .nick { font-weight: 600; }
+    .results-list li .team {
+      font-family: ui-monospace, monospace;
+      color: var(--green);
+      padding: 2px 10px;
+      background: rgba(63,185,80,.12);
+      border-radius: 4px;
+    }
+    .results-list li .found {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .empty {
+      color: var(--text-dim);
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>⛏️ Tenaiten Checker</h1>
+    <header>
+      <h1>⛏️ Tenaiten Checker</h1>
+    </header>
 
-    <!-- Переключатель профилей -->
-    <div class="row">
-      <button class="btn active" id="btnTab1" onclick="switchTab(1)">Профиль 1</button>
-      <button class="btn" id="btnTab2" onclick="switchTab(2)">Профиль 2</button>
-    </div>
+    <div class="layout">
+      <!-- ЛЕВАЯ ПАНЕЛЬ (НАСТРОЙКИ И УПРАВЛЕНИЕ) -->
+      <aside class="panel settings">
+        <div class="profile-switcher">
+          <button class="profile-tab active" id="btnTab1" onclick="switchProfile(1)">Профиль 1</button>
+          <button class="profile-tab" id="btnTab2" onclick="switchProfile(2)">Профиль 2</button>
+        </div>
 
-    <!-- ПРОФИЛЬ 1 -->
-    <div class="panel" id="profile1">
-      <label>Проверяемый ник
-        <input id="nick1" type="text" placeholder="Например: Notch" />
-      </label>
-      <div class="row">
-        <button class="btn primary" onclick="startProfile(1)">▶ Старт</button>
-        <button class="btn danger" onclick="stopProfile(1)">■ Стоп</button>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-bar"><div id="fill1"></div></div>
-        <div class="progress-text" id="text1">0 / 0</div>
-      </div>
-      <div class="current">
-        <div><span class="label">Вариант:</span> <span id="curr1">—</span></div>
-        <div><span class="label">Прогресс:</span> <span id="prog1">— / —</span></div>
-      </div>
+        <!-- ПРОФИЛЬ 1 -->
+        <div id="content1">
+          <label>Проверяемый ник
+            <input id="nick1" type="text" placeholder="Например: Notch" />
+          </label>
+          <div class="variants-info" id="variants1">Вариантов: —</div>
 
-      <hr />
-      <h2>Доп. ники</h2>
-      <div id="queue1" class="queue-container"></div>
-      <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueueItem(1)">+ Добавить ник</button>
+          <div class="row">
+            <button class="btn primary" onclick="startProfile(1)">▶ Старт</button>
+            <button class="btn danger" onclick="stopProfile(1)">■ Стоп</button>
+          </div>
 
-      <hr />
-      <h2>Настройки профиля 1</h2>
-      <label>Сервер <input id="host1" type="text" value="mc.masedworld.net" /></label>
-      <label>Версия <input id="version1" type="text" value="1.20.1" /></label>
-      <label>Пароль <input id="password1" type="text" placeholder="Пусто = 123123" /></label>
-      <label>Команда после входа <input id="postCommand1" type="text" placeholder="/sw" /></label>
-    </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div id="fill1"></div></div>
+            <div class="progress-text" id="ptext1">0 / 0</div>
+          </div>
 
-    <!-- ПРОФИЛЬ 2 -->
-    <div class="panel" id="profile2" style="display: none;">
-      <label>Проверяемый ник
-        <input id="nick2" type="text" placeholder="Например: Notch" />
-      </label>
-      <div class="row">
-        <button class="btn primary" onclick="startProfile(2)">▶ Старт</button>
-        <button class="btn danger" onclick="stopProfile(2)">■ Стоп</button>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-bar"><div id="fill2"></div></div>
-        <div class="progress-text" id="text2">0 / 0</div>
-      </div>
-      <div class="current">
-        <div><span class="label">Вариант:</span> <span id="curr2">—</span></div>
-        <div><span class="label">Прогресс:</span> <span id="prog2">— / —</span></div>
-      </div>
+          <div class="current">
+            <div><span class="label">Вариант:</span> <span id="curr1">—</span></div>
+            <div><span class="label">Прогресс:</span> <span id="prog1">— / —</span></div>
+          </div>
 
-      <hr />
-      <h2>Доп. ники</h2>
-      <div id="queue2" class="queue-container"></div>
-      <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueueItem(2)">+ Добавить ник</button>
+          <hr />
+          <h2>Доп. ники</h2>
+          <div id="queue1" class="queue-container"></div>
+          <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueue(1)">+ Добавить ник</button>
 
-      <hr />
-      <h2>Настройки профиля 2</h2>
-      <label>Сервер <input id="host2" type="text" value="mc.masedworld.net" /></label>
-      <label>Версия <input id="version2" type="text" value="1.20.1" /></label>
-      <label>Пароль <input id="password2" type="text" placeholder="Пусто = 123123" /></label>
-      <label>Команда после входа <input id="postCommand2" type="text" placeholder="/sw" /></label>
+          <hr />
+          <h2>Настройки</h2>
+          <label>Сервер <input id="host1" type="text" value="mc.masedworld.net" /></label>
+          <label>Версия <input id="version1" type="text" value="1.20.1" /></label>
+          <label>Пароль <input id="password1" type="text" placeholder="Введите пароль" /></label>
+          <label>Команда после входа <input id="postCommand1" type="text" placeholder="/sw" /></label>
+        </div>
+
+        <!-- ПРОФИЛЬ 2 -->
+        <div id="content2" style="display: none;">
+          <label>Проверяемый ник
+            <input id="nick2" type="text" placeholder="Например: Notch" />
+          </label>
+          <div class="variants-info" id="variants2">Вариантов: —</div>
+
+          <div class="row">
+            <button class="btn primary" onclick="startProfile(2)">▶ Старт</button>
+            <button class="btn danger" onclick="stopProfile(2)">■ Стоп</button>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-bar"><div id="fill2"></div></div>
+            <div class="progress-text" id="ptext2">0 / 0</div>
+          </div>
+
+          <div class="current">
+            <div><span class="label">Вариант:</span> <span id="curr2">—</span></div>
+            <div><span class="label">Прогресс:</span> <span id="prog2">— / —</span></div>
+          </div>
+
+          <hr />
+          <h2>Доп. ники</h2>
+          <div id="queue2" class="queue-container"></div>
+          <button class="btn small" style="width:100%; margin-bottom:16px;" onclick="addQueue(2)">+ Добавить ник</button>
+
+          <hr />
+          <h2>Настройки</h2>
+          <label>Сервер <input id="host2" type="text" value="mc.masedworld.net" /></label>
+          <label>Версия <input id="version2" type="text" value="1.20.1" /></label>
+          <label>Пароль <input id="password2" type="text" placeholder="Введите пароль" /></label>
+          <label>Команда после входа <input id="postCommand2" type="text" placeholder="/sw" /></label>
+        </div>
+      </aside>
+
+      <!-- ПРАВАЯ ПАНЕЛЬ (ТОПЫ И ВСЕ НИКИ) -->
+      <main class="panel results" style="padding: 0; overflow: hidden;">
+        <div class="tabs">
+          <button class="tab active" onclick="switchSubTab('high')">⬆️ Топ высоких</button>
+          <button class="tab" onclick="switchSubTab('low')">⬇️ Топ низких</button>
+          <button class="tab" onclick="switchSubTab('all')">📋 Все проверенные</button>
+        </div>
+
+        <div id="tab-high" class="tab-content active">
+          <div class="empty" id="emptyHigh">Загрузка...</div>
+          <ul class="results-list" id="listHigh"></ul>
+        </div>
+        
+        <div id="tab-low" class="tab-content">
+          <div class="empty" id="emptyLow">Загрузка...</div>
+          <ul class="results-list" id="listLow"></ul>
+        </div>
+
+        <div id="tab-all" class="tab-content">
+          <div class="empty" id="emptyAll">Загрузка...</div>
+          <ul class="results-list" id="listAll"></ul>
+        </div>
+      </main>
     </div>
   </div>
 
@@ -225,17 +343,28 @@
     tg.setBackgroundColor('secondary_bg_color');
 
     let currentProfile = 1;
+    let allData = { high: [], low: [], all: [] }; // Сюда будем сохранять присланные данные
 
-    function switchTab(pid) {
+    function switchProfile(pid) {
       currentProfile = pid;
-      document.getElementById('profile1').style.display = pid === 1 ? 'block' : 'none';
-      document.getElementById('profile2').style.display = pid === 2 ? 'block' : 'none';
+      document.getElementById('content1').style.display = pid === 1 ? 'block' : 'none';
+      document.getElementById('content2').style.display = pid === 2 ? 'block' : 'none';
       document.getElementById('btnTab1').classList.toggle('active', pid === 1);
       document.getElementById('btnTab2').classList.toggle('active', pid === 2);
     }
 
-    function addQueueItem(pid) {
-      const container = document.getElementById(`queue${pid}`);
+    function switchSubTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      
+      // При переключении отправляем запрос на обновление данных
+      tg.sendData(JSON.stringify({ action: 'request_data', type: tabName }));
+    }
+
+    function addQueue(pid) {
+      const container = document.getElementById('queue' + pid);
       const item = document.createElement('div');
       item.className = 'queue-item';
       
@@ -257,16 +386,31 @@
       container.appendChild(item);
     }
 
-    // Отправка команды в бота
+    document.getElementById('nick1').addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      const info = document.getElementById('variants1');
+      if (!val) { info.textContent = 'Вариантов: —'; info.className = 'variants-info'; return; }
+      info.textContent = `Вариантов: ${Math.pow(2, Math.min(val.length, 16))}`;
+      info.className = 'variants-info has-value';
+    });
+
+    document.getElementById('nick2').addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      const info = document.getElementById('variants2');
+      if (!val) { info.textContent = 'Вариантов: —'; info.className = 'variants-info'; return; }
+      info.textContent = `Вариантов: ${Math.pow(2, Math.min(val.length, 16))}`;
+      info.className = 'variants-info has-value';
+    });
+
+    // Отправка команд
     function sendAction(action, profileId, nick) {
-      const host = document.getElementById(`host${profileId}`).value.trim();
-      const version = document.getElementById(`version${profileId}`).value.trim();
-      const password = document.getElementById(`password${profileId}`).value;
-      const postCommand = document.getElementById(`postCommand${profileId}`).value.trim();
+      const host = document.getElementById('host' + profileId).value.trim();
+      const version = document.getElementById('version' + profileId).value.trim();
+      const password = document.getElementById('password' + profileId).value;
+      const postCommand = document.getElementById('postCommand' + profileId).value.trim();
       
-      // Собираем доп. ники из полей ввода
-      const queueInputs = document.querySelectorAll(`#queue${profileId} input`);
-      const queue = Array.from(queueInputs).map(inp => inp.value.trim()).filter(Boolean);
+      const queueInputs = document.querySelectorAll('#queue' + profileId + ' input');
+      const queue = Array.from(queueInputs).map(i => i.value.trim()).filter(Boolean);
       
       const data = { action, profileId, nick, host, version, password, postCommand, queue };
       tg.sendData(JSON.stringify(data));
@@ -274,17 +418,90 @@
     }
 
     function startProfile(id) {
-      const nick = document.getElementById(`nick${id}`).value.trim();
-      if (!nick) {
-        tg.showAlert("Введите ник!");
-        return;
-      }
+      const nick = document.getElementById('nick' + id).value.trim();
+      if (!nick) return tg.showAlert("Введите ник!");
       sendAction('start', id, nick);
     }
 
     function stopProfile(id) {
       sendAction('stop', id);
     }
+
+    // Приём данных от бота (бот пришлёт их через событие)
+    tg.onEvent('viewportChanged', () => {});
+    
+    // Обработка входящего сообщения (бот пришлёт данные)
+    tg.onEvent('dataReceived', (data) => {
+      try {
+        const parsed = JSON.parse(data);
+        if (parsed.action === 'data_response') {
+          renderTops(parsed.high, parsed.low, parsed.all);
+        }
+      } catch(e) {}
+    });
+
+    function renderTops(high, low, all) {
+      allData = { high, low, all };
+      
+      // Топ высоких
+      const listHigh = document.getElementById('listHigh');
+      const emptyHigh = document.getElementById('emptyHigh');
+      if (high && high.length) {
+        emptyHigh.style.display = 'none';
+        listHigh.innerHTML = high.map(it => `
+          <li>
+            <span class="nick">${escapeHtml(it.username)}</span>
+            <span class="team">${escapeHtml(it.team)}</span>
+          </li>
+        `).join('');
+      } else {
+        emptyHigh.style.display = 'block';
+        listHigh.innerHTML = '';
+      }
+
+      // Топ низких
+      const listLow = document.getElementById('listLow');
+      const emptyLow = document.getElementById('emptyLow');
+      if (low && low.length) {
+        emptyLow.style.display = 'none';
+        listLow.innerHTML = low.map(it => `
+          <li>
+            <span class="nick">${escapeHtml(it.username)}</span>
+            <span class="team">${escapeHtml(it.team)}</span>
+          </li>
+        `).join('');
+      } else {
+        emptyLow.style.display = 'block';
+        listLow.innerHTML = '';
+      }
+
+      // Все проверенные
+      const listAll = document.getElementById('listAll');
+      const emptyAll = document.getElementById('emptyAll');
+      if (all && all.length) {
+        emptyAll.style.display = 'none';
+        listAll.innerHTML = all.map(it => `
+          <li>
+            <span class="nick">${escapeHtml(it.nickLower)}</span>
+            <span class="found">${it.done} / ${it.total}</span>
+          </li>
+        `).join('');
+      } else {
+        emptyAll.style.display = 'block';
+        listAll.innerHTML = '';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ 
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' 
+      }[c]));
+    }
+
+    // Запрос данных при открытии
+    setTimeout(() => {
+      tg.sendData(JSON.stringify({ action: 'request_data', type: 'all' }));
+    }, 500);
   </script>
 </body>
 </html>
